@@ -1,6 +1,10 @@
 #include <iostream>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
+
+// 该文件为原始文件 具体实现在各个文件中
 
 #define ERR_EXIF(m) \
         do \
@@ -10,6 +14,5 @@ using namespace std;
         } while(0);
 
 int main() {
-    ERR_EXIF("main");
     return 0;
 }
