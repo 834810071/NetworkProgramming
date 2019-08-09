@@ -76,27 +76,96 @@ void do_login(MESSAGE msg, int sock, struct sockaddr_in cliaddr)
         // 向其他用户通知有新用户登录
         for (it = client_list.begin(); it != client_list.end(); ++it)
         {
-            if (strcmp(it->username, msg.body) == 0)
+            if (strcmp(it->username, msg.body) == 0)    // 如果是当前用户，则跳过
             {
                 continue;
             }
 
             struct sockaddr_in peeraddr;
             memset(&peeraddr, 0, sizeof peeraddr);
+            peeraddr.sin_family = AF_INET;
+            peeraddr.sin_port = it->port;
+            peeraddr.sin_addr.s_addr = it->ip;
 
+            msg.cmd = htons(S2C_SOMEONE_LOGIN);
+            memcpy(msg.body, &user, sizeof(user));
+
+            if (sendto(sock, &msg, sizeof(msg), 0, (struct sockaddr*)&peeraddr, sizeof peeraddr) < 0)
+            {
+                ERR_EXIT("sendto");
+            }
         }
 
+    }
+    else    // 找到该用户  fixme[如果找到该用户之后还有其他操作吗?]
+    {
+        printf("user %s has already logined\n", msg.body);
+
+        MESSAGE reply_msg;
+        memset(&reply_msg, 0, sizeof(MESSAGE));
+        reply_msg.cmd = htons(S2C_ALREADY_LOGINED);
+       // int a = ntohs(reply_msg.cmd);
+        sendto(sock, &reply_msg, sizeof(MESSAGE), 0, (struct sockaddr*)&cliaddr, sizeof cliaddr);
     }
 }
 
 void do_logout(MESSAGE msg, int sock, struct sockaddr_in cliaddr)
 {
-    cout << "do_logout" << endl;
+     //cout << "do_logout" << endl;
+     printf("has a user logout : %s <-> %s:%d\n", msg.body, inet_ntoa(cliaddr.sin_addr), cliaddr.sin_port);
+
+     USER_LIST::iterator it;
+     for (it = client_list.begin(); it != client_list.end(); ++it)
+     {
+        if (strcmp(it->username, msg.body) == 0)
+        {
+            break;
+        }
+     }
+
+     if (it != client_list.end())
+     {
+         client_list.erase(it);
+     }
+
+     // 向其他用户通知有用户退出
+     for (it = client_list.begin(); it != client_list.end(); ++it)
+     {
+         if (strcmp(it->username, msg.body) == 0)
+         {
+             continue;
+         }
+         struct sockaddr_in peeraddr;
+         memset(&peeraddr, 0, sizeof peeraddr);
+         peeraddr.sin_family = AF_INET;
+         peeraddr.sin_addr.s_addr = it->ip;
+         peeraddr.sin_port = it->port;
+
+         MESSAGE m;
+         strcpy(m.body, msg.body);
+         m.cmd = S2C_SOMEONE_LOGOUT;
+         if (sendto(sock, &m, sizeof(MESSAGE), 0, (struct sockaddr*)&peeraddr, sizeof(peeraddr)) < 0)
+         {
+             ERR_EXIT("sendto");
+         }
+     }
 }
 
 void do_sendlist(int sock, struct sockaddr_in cliaddr)
 {
-    cout << "do_sendlist" << endl;
+    //cout << "do_sendlist" << endl;
+    MESSAGE msg;
+    msg.cmd = htons(S2C_ONLINE_USER);
+    sendto(sock, (const char*)&msg, sizeof(msg), 0, (struct sockaddr*)&cliaddr, sizeof cliaddr);
+
+    int count = htons((int)client_list.size());
+    /* 发送在线用户数 */
+    sendto(sock, (const char*)&count, sizeof (int), 0, (struct sockaddr*)&cliaddr, sizeof cliaddr);
+    /* 发送在线用户列表 */
+    for (USER_LIST::iterator it = client_list.begin(); it != client_list.end(); ++it)
+    {
+        sendto(sock, &*it, sizeof(USER_INFO), 0, (struct sockaddr*)&cliaddr, sizeof cliaddr);
+    }
 }
 
 void chat_srv(int sock)
