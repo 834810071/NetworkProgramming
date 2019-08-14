@@ -41,5 +41,16 @@ add_executable(msgcli msgcli.cpp)
 add_executable(msgsrv msgsrv.cpp)
 add_executable(mmap_recv mmap_recv.cpp)
 add_executable(mmap_send mmap_send.cpp)
+add_executable(shmread shmread.cpp)
+add_executable(shmwrite shmwrite.cpp)
+add_executable(sem sem.cpp)
+add_executable(sem02 sem02.cpp)
+add_executable(sem03 sem03.cpp)
 
 add_subdirectory(udpchat)
+add_subdirectory(shmfifo)
+
+set(semsrc
+        sem.cpp)
+
+add_library(semtool ${semsrc})

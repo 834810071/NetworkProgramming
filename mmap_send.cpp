@@ -48,6 +48,8 @@ int main(int argc, char** argv)
     }
 
     // SEEK_SET 参数 offset 即为新的读写位置
+    // solve the bus error problem:
+    // we should allocate space for the file first.
     lseek(fd, sizeof(STU) * 6 - 1, SEEK_SET);
     write(fd, "", 1);
 
@@ -62,6 +64,7 @@ int main(int argc, char** argv)
     {
         memcpy((p+i)->name, &ch, 1);
         (p+i)->age = 10 + i;
+
         ++ch;
     }
 
