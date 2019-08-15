@@ -59,9 +59,12 @@ add_executable(04shmreceive 04shmreceive.cpp)
 add_executable(thread_create thread_create.cpp)
 add_executable(threadechosrv threadechosrv.cpp)
 add_executable(thread thread.cpp)
+add_executable(pctest pctest.cpp)
+add_executable(condtest condtest.cpp)
 
 add_subdirectory(udpchat)
 add_subdirectory(shmfifo)
+add_subdirectory(threadpool)
 
 set(semsrc
         sem.cpp)
@@ -81,3 +84,5 @@ target_link_libraries(04shmreceive rt)
 target_link_libraries(thread_create pthread)
 target_link_libraries(threadechosrv pthread)
 target_link_libraries(thread pthread)
+target_link_libraries(pctest pthread rt)
+target_link_libraries(condtest pthread rt)
