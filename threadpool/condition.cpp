@@ -4,6 +4,12 @@
 
 #include "condition.h"
 #include <pthread.h>
+#include <stdio.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <iostream>
+
+using namespace std;
 
 int condition_init(condition_t *cond)
 {
@@ -18,11 +24,18 @@ int condition_init(condition_t *cond)
     {
         return state;
     }
+    return 0;
 }
 
 int condition_lock(condition_t *cond)
 {
-    pthread_mutex_lock(&(cond->pmutex));
+    //cout << pthread_mutex_lock(&(cond->pmutex)) << endl;
+    if (pthread_mutex_lock(&(cond->pmutex)) == 0)
+    {
+        printf("pthread_mutex_lock error\n");
+        exit(EXIT_FAILURE);
+    }
+    return 1;
 }
 
 int condition_unlock(condition_t *cond)
@@ -31,22 +44,22 @@ int condition_unlock(condition_t *cond)
 }
 int condition_wait(condition_t *cond)
 {
-    pthread_cond_wait(&(cond->pcond), &(cond->pmutex));
+    return pthread_cond_wait(&(cond->pcond), &(cond->pmutex));
 }
 
 int condition_timewait(condition_t *cond, const struct timespec *abstime)
 {
-    pthread_cond_timedwait(&(cond->pcond), &(cond->pmutex), abstime);
+    return pthread_cond_timedwait(&(cond->pcond), &(cond->pmutex), abstime);
 }
 
 int condition_signal(condition_t *cond)
 {
-    pthread_cond_signal(&(cond->pcond));
+    return pthread_cond_signal(&(cond->pcond));
 }
 
 int condition_broadcast(condition_t *cond)
 {
-    pthread_cond_broadcast(&(cond->pcond));
+    return pthread_cond_broadcast(&(cond->pcond));
 }
 
 int condition_destroy(condition_t *cond)
@@ -62,4 +75,5 @@ int condition_destroy(condition_t *cond)
     {
         return state;
     }
+    return 0;
 }
