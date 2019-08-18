@@ -66,6 +66,6 @@ int main(int argc, char** argv)
     {
         ERR_EXIT("msgsnd");
     }
-    printf("type=%d, bytes=%d\n", ptr->mtype, n) ;
+    printf("type=%d, bytes=%d\n", ptr->mtype, (int)n) ;
     return 0;
 }

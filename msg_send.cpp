@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 {
     if (argc != 3)
     {
-        fprintf(stderr, "Usage: %s <bytes> <type>\n");
+        fprintf(stderr, "Usage: %s <bytes> <type>\n", argv[1]);
         exit(EXIT_FAILURE);
     }
 
