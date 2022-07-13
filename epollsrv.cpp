@@ -304,6 +304,7 @@ int main(int argc, char** argv) {
                 }
                 fputs(recvbuf, stdout);
                 writen(connfd, recvbuf, strlen(recvbuf));
+                memset(recvbuf, 0, sizeof recvbuf);
             }
         }
 
